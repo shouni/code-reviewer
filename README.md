@@ -35,7 +35,7 @@ sequenceDiagram
   autonumber
   actor App as Application (Pipeline)
 
-  box rgb(240, 248, 255) pkg/core & publisher (Library)
+  box rgb(240, 248, 255) pkg/core & publisher [Library]
     participant Git as core/git
     participant Prompts as core/prompts (Builder)
     participant Pub as publisher (Impl)
