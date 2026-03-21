@@ -41,11 +41,11 @@ actor App as Application (Pipeline)
         participant Prompts as core/prompts
     end
 
-    box rgb(255, 250, 240) pkg/md (Independent Renderer)
+    box rgb(255, 250, 240) pkg/md
         participant MD as md/runner
     end
 
-    box rgb(250, 250, 250) Adapters (Implementations)
+    box rgb(250, 250, 250) Adapters
         participant Gemini as gemini (Adapter)
         participant Slack as slack (Adapter)
         participant S3 as remoteio (S3/GCS Adapter)
@@ -66,7 +66,6 @@ actor App as Application (Pipeline)
 
     App->>Prompts: 2.1 プロンプト構築要求<br/>(prompts.Builder.Build)
     activate Prompts
-    Note right of Prompts: File API活用、<br/>大容量コードを最適化
     Prompts-->>App: 2.2 構築済みプロンプト返却
     deactivate Prompts
 
