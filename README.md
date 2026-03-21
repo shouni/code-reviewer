@@ -32,79 +32,76 @@
 
 ```mermaid
 sequenceDiagram
-autonumber
-actor App as Application (Pipeline)
+  autonumber
+  actor App as Application (Pipeline)
 
-    box rgb(240, 248, 255) pkg/core
-        participant Ports as ports (Interfaces)
-        participant Git as core/git
-        participant Prompts as core/prompts
-    end
+  box rgb(240, 248, 255) pkg/core & publisher (Library)
+    participant Git as core/git
+    participant Prompts as core/prompts (Builder)
+    participant Pub as publisher (Impl)
+    participant MD as ports/Render (Interface)
+  end
 
-    box rgb(255, 250, 240) pkg/md
-        participant MD as md/runner
-    end
+  box rgb(255, 250, 240) internal/runner
+    participant Review as runner/Review
+    participant AppPub as runner/Publish (Wrapper)
+  end
 
-    box rgb(250, 250, 250) Adapters
-        participant Gemini as gemini (Adapter)
-        participant Slack as slack (Adapter)
-        participant S3 as remoteio (S3/GCS Adapter)
-    end
+  box rgb(250, 250, 250) Adapters [Implementations]
+    participant Gemini as gemini (Adapter)
+    participant S3 as remoteio (Writer)
+    participant Slack as slack (Adapter)
+  end
 
-    Note over App, Ports: [1. INPUT Phase]
+  Note over App, Review: [1. INPUT & PROCESS Phase]
 
-    App->>Ports: 1.1 Gitクローン & 差分抽出要求<br/>(git.Manager.GetDiff)
-    activate Ports
-    Ports->>Git: 1.2 SSH認証 & クローン実行
-    activate Git
-    Git-->>Ports: 1.3 差分データ (diff) 返却
-    deactivate Git
-    Ports-->>App: 1.4 差分データ返却
-    deactivate Ports
+  App->>Review: 1.1 レビュー実行要求
+  activate Review
+  Review->>Git: 1.2 SSH認証 & 差分抽出
+  Git-->>Review: 1.3 差分データ (diff)
 
-    Note over App, Ports: [2. PROCESS Phase]
+%% Prompts Builder の登場
+  Review->>Prompts: 1.4 Build(mode, data)
+  activate Prompts
+  Note right of Prompts: template.Execute で<br/>プロンプトを動的生成
+  Prompts-->>Review: 1.5 構築済みプロンプト文字列
+  deactivate Prompts
 
-    App->>Prompts: 2.1 プロンプト構築要求<br/>(prompts.Builder.Build)
-    activate Prompts
-    Prompts-->>App: 2.2 構築済みプロンプト返却
-    deactivate Prompts
+  Review->>Gemini: 1.6 AI解析要求
+  Gemini-->>Review: 1.7 レビュー結果 (Markdown)
+  Review-->>App: 1.8 ReviewData 返却
+  deactivate Review
 
-    App->>Ports: 2.3 AIレビュー実行要求<br/>(ai.Analyzer.Analyze)
-    activate Ports
-    Ports->>Gemini: 2.4 プロンプト送信
-    activate Gemini
-    Gemini-->>Ports: 2.5 レビュー結果 (Markdown) 返却
-    deactivate Gemini
-    Ports-->>App: 2.6 レビュー結果返却
-    deactivate Ports
+  Note over App, AppPub: [2. OUTPUT Phase (Unified Workflow)]
 
-    App->>MD: 2.7 HTMLレポート生成要求<br/>(md.Runner.Render)
-    activate MD
-    Note right of MD: テンプレートとCSSを<br/>適用しHTML化
-    MD-->>App: 2.8 HTMLレポート & 成果物返却
-    deactivate MD
+  App->>AppPub: 2.1 成果物公開要求
+  activate AppPub
 
-    Note over App, Ports: [3. OUTPUT Phase]
+  AppPub->>Pub: 2.2 Publish(ctx, uri, data)
+  activate Pub
 
-    App->>Ports: 3.1 レビュー結果配信要求<br/>(publisher.Distributor.Distribute)
-    activate Ports
-    
-    par Slackへ通知
-        Ports->>Slack: 3.2 Block Kit形式で通知
-        activate Slack
-        Slack-->>Ports: 3.3 通知完了
-        deactivate Slack
-    and ストレージへアップロード
-        Ports->>S3: 3.4 HTMLレポートをアップロード
-        activate S3
-        S3-->>Ports: 3.5 アップロード完了 (URL)
-        deactivate S3
-    end
+  Note right of Pub: 2.3 convertMarkdownToHTML<br/>(メタ情報を付与)
 
-    Ports-->>App: 3.6 配信処理完了
-    deactivate Ports
+  Pub->>MD: 2.4 HTML変換要求 (Run)
+  activate MD
+  MD-->>Pub: 2.5 HTMLデータ返却
+  deactivate MD
 
-    Note over App: 4. レビューパイプライン完了
+  Pub->>S3: 2.6 Write(uri, html, contentType)
+  activate S3
+  S3-->>Pub: 2.7 書き込み完了
+  deactivate S3
+
+  Pub-->>AppPub: 2.8 公開処理完了
+  deactivate Pub
+
+  AppPub->>Slack: 2.9 レビュー完了通知 (公開URL含む)
+  activate Slack
+  Slack-->>AppPub: 2.10 通知完了
+  deactivate Slack
+
+  AppPub-->>App: 2.11 パイプライン完了
+  deactivate AppPub
 
 ```
 
