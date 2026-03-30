@@ -16,7 +16,7 @@ require (
 	github.com/yuin/goldmark v1.7.17
 	golang.org/x/crypto v0.48.0
 	google.golang.org/api v0.265.0
-	google.golang.org/genai v1.51.0
+	google.golang.org/genai v1.52.0
 	google.golang.org/grpc v1.79.3
 )
 
