@@ -5,7 +5,7 @@
 [![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/shouni/code-reviewer)](https://github.com/shouni/code-reviewer/tags)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🚀 概要 (About) — Go 1.24 世代の安定版、AI レビュー・ツールキット
+## 🚀 概要 (About) — Go 1.24 世代の安定版
 
 **Code Reviewer** は、コアエンジン **[`shouni/gemini-reviewer-core`](https://github.com/shouni/gemini-reviewer-core)** をベースに、Go 1.24 世代のプロジェクト向けに構成を簡略化・再構築したサブ・プロジェクトです。
 
