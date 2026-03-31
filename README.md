@@ -7,7 +7,7 @@
 
 ## 🚀 概要 (About) — Go 1.24 世代の安定版
 
-**Code Reviewer** は、コアエンジン **[`shouni/gemini-reviewer-core`](https://github.com/shouni/gemini-reviewer-core)** をベースに、Go 1.24 世代のプロジェクト向けに構成を簡略化・再構築したサブ・プロジェクトです。
+**Code Reviewer** は、AIコードレビューエンジン **[Gemini Reviewer Core](https://github.com/shouni/gemini-reviewer-core)** をベースに、Go 1.24 世代のプロジェクト向けに構成を簡略化・再構築したサブ・プロジェクトです。
 
 ---
 
